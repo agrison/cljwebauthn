@@ -24,7 +24,6 @@
 
 
 ;;; ----- registration
-
 (defn prepare-registration
   "Prepare a user for registration by generating a challenge and
   giving the information needed by the browser to follow with the
@@ -62,7 +61,6 @@
         (save-authenticator user-id (interop/->authenticator data))
         {:user-id user-id :challenge challenge}))))
 
-
 ;;; ----- login
 (defn prepare-login
   "Prepare user login using WebAuthn.
@@ -90,35 +88,3 @@
         data (.parse manager request)]
     (when (.validate manager data parameters)
       {:user-id user-handle :challenge challenge})))
-
-
-
-;;;;  FULL WORKING SCENARIO :-)
-;(def site-properties
-;  {:site-id "grison.me",
-;   :site-name "Stuff and Thoughts about IT Stuff",
-;   :protocol "https",
-;   :port 443,
-;   :host "grison.me"})
-;(def AUTH (atom nil))
-;(defn generate-challenge [] "foobar")
-;(prepare-registration "foo@bar.com" site-properties)
-;(register-user
-;  {:attestation "o2NmbXRmcGFja2VkZ2F0dFN0bXSiY2FsZyZjc2lnWEcwRQIgeOSXUhr3sMAO2WVq/fzmqAJn5RSf00y+2JHWSnrfBH4CIQDX9OvQGKb5q8Fj/SgJuiT2HwAcxtJ2q1FaWugkfiY32mhhdXRoRGF0YVjF09CVCOxdEGxTwSc5mFMLk7vvUH763HGL3Wl3siTnwk1FXo81/q3OAAI1vMYKZIsLJfHwVQMAQQEZBainwiWsYFxuJud3Nst81qcUmRq4jdLB/sOo2EJxZbDa4vF+xh31DS+XYCw9/6Csm75edLI9yIffVJaree8lpQECAyYgASFYIO7qcEAfShtfCKN8k1hJ0Vo1GtJ3toA0+agxwJcu24xzIlggEfYFr083E++o65vZ/I8hCZ3+Jpd1FdbaqAkCY1nvQuI="
-;   :client-data "eyJjaGFsbGVuZ2UiOiJabTl2WW1GeSIsIm9yaWdpbiI6Imh0dHBzOi8vZ3Jpc29uLm1lIiwidHlwZSI6IndlYmF1dGhuLmNyZWF0ZSJ9"
-;   :challenge   "foobar"}
-;  site-properties
-;  (fn [user-id authenticator]
-;    (println "Saving authenticator for " user-id)
-;    (reset! AUTH authenticator)))
-;(defn generate-challenge [] "foobar2")
-;(prepare-login "foo@bar.com" (fn [user-id] @AUTH))
-;(login-user
-;  {:credential-id      "ARkFqKfCJaxgXG4m53c2y3zWpxSZGriN0sH+w6jYQnFlsNri8X7GHfUNL5dgLD3/oKybvl50sj3Ih99Ulqt57yU="
-;   :user-handle        "Wm05dlFHSmhjaTVqYjIwPQ=="
-;   :authenticator-data "09CVCOxdEGxTwSc5mFMLk7vvUH763HGL3Wl3siTnwk0FXo82Tg=="
-;   :client-data        "eyJjaGFsbGVuZ2UiOiJabTl2WW1GeU1nIiwib3JpZ2luIjoiaHR0cHM6Ly9ncmlzb24ubWUiLCJ0eXBlIjoid2ViYXV0aG4uZ2V0In0="
-;   :signature          "MEUCIQCkfqWpAhi7CRO0exa2wenWgDaakqJq2uUKpDix4UrlcQIgFeDV8HEki7WSjRkz4j+MVLBjypqBD8hSm7gv+gI1roY="
-;   :challenge          "foobar2"}
-;  site-properties
-;  (fn [user-id] @AUTH))
