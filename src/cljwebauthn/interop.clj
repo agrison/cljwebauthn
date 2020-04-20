@@ -36,7 +36,9 @@
   [^RegistrationRequest request]
   (.parse (WebAuthnManager/createNonStrictWebAuthnManager) request))
 
-(defn default-manager []
+(defn default-manager
+  "Creates a default WebAuthnManager."
+  []
   (WebAuthnManager/createNonStrictWebAuthnManager))
 
 (defn registration-data-valid?

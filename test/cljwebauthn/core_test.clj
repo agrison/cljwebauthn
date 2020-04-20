@@ -33,6 +33,7 @@
         user (register-user register-payload
                             site-properties
                             (fn [user-id authenticator]
+                              (println "Registering user " user-id)
                               (reset! auth authenticator)))]
     (is (= {:user-id "foo@bar.com" :challenge challenge} user))
     (is (not (nil? @auth)))))
@@ -42,7 +43,9 @@
         auth (atom nil)]
     (with-redefs [generate-challenge (fn [] "foobar")]
       (let [_ (register-user register-payload site-properties
-                             (fn [user-id authenticator] (reset! auth authenticator)))]
+                             (fn [user-id authenticator]
+                               (println "Registering user" user-id)
+                               (reset! auth authenticator)))]
         (with-redefs [generate-challenge (fn [] "foobar2")]
           (let [prep (prepare-login email (fn [user-id] @auth))]
             (is (every? prep [:challenge :credentials]))
@@ -62,7 +65,9 @@
         auth (atom nil)]
     (with-redefs [generate-challenge (fn [] "foobar")]
       (let [_ (register-user register-payload site-properties
-                             (fn [user-id authenticator] (reset! auth authenticator)))
+                             (fn [user-id authenticator]
+                               (println "Registering user" user-id)
+                               (reset! auth authenticator)))
             user (login-user login-payload site-properties
                              (fn [user-id] @auth))]
         (is (every? user [:user-id :challenge]))
