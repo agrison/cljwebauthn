@@ -1,6 +1,5 @@
 (ns cljwebauthn.interop
-  (:require [clojure.data.json :as json]
-            [cljwebauthn.b64 :as b64])
+  (:require [cljwebauthn.b64 :as b64])
   (:import (com.webauthn4j.server ServerProperty)
            (com.webauthn4j.data RegistrationRequest RegistrationParameters AuthenticationRequest RegistrationData AuthenticationParameters)
            (com.webauthn4j.data.client.challenge DefaultChallenge)
@@ -46,7 +45,7 @@
   (try
     (.validate (default-manager) data parameters)
     true
-    (catch Exception e false)))
+    (catch Exception _ false)))
 
 (defn ->authenticator
   "Makes a Webauthn4J AuthenticatorImpl."

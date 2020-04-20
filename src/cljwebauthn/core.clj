@@ -32,7 +32,7 @@
   The method will call the given can-register-user function before preparing
   for registration"
   ([user-id properties]
-   (prepare-registration user-id (fn [user-id] true) properties))
+   (prepare-registration user-id (fn [_] true) properties))
   ([user-id can-register-user properties]
    (when (can-register-user user-id)
      (let [challenge (generate-challenge)]
