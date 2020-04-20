@@ -7,8 +7,6 @@
  :aliases {:test      {:extra-paths ["test"]
                        :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0-612"}}
                        :main-opts   ["-m" "kaocha.runner"]}
-           :fatjar    {:extra-deps {uberdeps {:mvn/version "0.1.10"}}
-                       :main-opts  ["-m" "uberdeps.uberjar" "--target" "target/shout-0.1.jar"]}
            :kondo     {:extra-deps {clj-kondo {:mvn/version "RELEASE"}}
                        :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
            :fmt-fix   {:extra-deps {com.jameslaverack/cljfmt-runner
