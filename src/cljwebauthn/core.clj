@@ -14,7 +14,7 @@
 (defn generate-challenge
   "Generate a challenge for both registration and login."
   []
-  (.toString (UUID/randomUUID)))
+  (str (UUID/randomUUID)))
 
 (defn decode-client-data
   "Decode the client data by parsing its JSON content."
