@@ -1,9 +1,9 @@
-{:paths ["resources" "src"]
- :deps {org.clojure/clojure {:mvn/version "1.10.1"}
-        buddy {:mvn/version "2.0.0"}
-        org.clojure/data.json {:mvn/version "1.0.0"}
-        com.webauthn4j/webauthn4j-core {:mvn/version "0.11.0.RELEASE"}
-        nrepl/nrepl {:mvn/version "0.5.3"}}
+{:paths   ["resources" "src"]
+ :deps    {org.clojure/clojure            {:mvn/version "1.10.1"}
+           buddy                          {:mvn/version "2.0.0"}
+           org.clojure/data.json          {:mvn/version "1.0.0"}
+           com.webauthn4j/webauthn4j-core {:mvn/version "0.11.0.RELEASE"}
+           nrepl/nrepl                    {:mvn/version "0.5.3"}}
  :aliases {:test      {:extra-paths ["test"]
                        :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0-612"}}
                        :main-opts   ["-m" "kaocha.runner"]}
@@ -13,14 +13,16 @@
                        :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
            :fmt-fix   {:extra-deps {com.jameslaverack/cljfmt-runner
                                     {:git/url "https://github.com/JamesLaverack/cljfmt-runner"
-                                     :sha "97960e9a6464935534b5a6bab529e063d0027128"}}
-                       :main-opts ["-m" "cljfmt-runner.fix"]}
+                                     :sha     "97960e9a6464935534b5a6bab529e063d0027128"}}
+                       :main-opts  ["-m" "cljfmt-runner.fix"]}
            :fmt-check {:extra-deps {com.jameslaverack/cljfmt-runner
                                     {:git/url "https://github.com/JamesLaverack/cljfmt-runner"
-                                     :sha "97960e9a6464935534b5a6bab529e063d0027128"}}
-                       :main-opts ["-m" "cljfmt-runner.check"]}
+                                     :sha     "97960e9a6464935534b5a6bab529e063d0027128"}}
+                       :main-opts  ["-m" "cljfmt-runner.check"]}
            :kibit     {:extra-deps {tvaughan/kibit-runner {:mvn/version "0.1.0"}}
                        :main-opts  ["-m" "kibit-runner.cmdline"]}
            :pack      {:extra-deps {pack/pack.alpha {:git/url "https://github.com/juxt/pack.alpha.git"
-                                                     :sha "c70740ffc10805f34836da2160fa1899601fac02"}}
-                       :main-opts ["-m"]}}}
+                                                     :sha     "c70740ffc10805f34836da2160fa1899601fac02"}}
+                       :main-opts  ["-m"]}
+           :deploy    {:extra-deps {deps-deploy {:mvn/version "RELEASE"}}
+                       :main-opts  ["-m" "deps-deploy.deps-deploy" "deploy" "cljwebauthn.jar"]}}}
