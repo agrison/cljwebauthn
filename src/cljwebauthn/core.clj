@@ -16,7 +16,6 @@
   []
   (.toString (UUID/randomUUID)))
 
-
 (defn decode-client-data
   "Decode the client data by parsing its JSON content."
   [data]
@@ -24,6 +23,8 @@
 
 
 ;;; ----- registration
+
+
 (defn prepare-registration
   "Prepare a user for registration by generating a challenge and
   giving the information needed by the browser to follow with the

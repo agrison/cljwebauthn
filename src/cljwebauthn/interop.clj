@@ -11,10 +11,10 @@
   "Makes a Webauthn4J RegistrationRequest."
   [attestation client-data]
   (RegistrationRequest.
-    (b64/decode-binary attestation)
-    (b64/decode-binary client-data)
-    nil
-    #{}))
+   (b64/decode-binary attestation)
+   (b64/decode-binary client-data)
+   nil
+   #{}))
 
 (defn ->server-property
   "Makes a Webauthn4J ServerProperty."
@@ -28,8 +28,8 @@
   "Makes a Webauthn4J RegistrationParameters."
   [protocol host port challenge]
   (RegistrationParameters.
-    (->server-property protocol host port challenge)
-    false true []))
+   (->server-property protocol host port challenge)
+   false true []))
 
 (defn ->registration-data
   "Makes a Webauthn4J WebAuthnManager."
@@ -58,17 +58,17 @@
   "Makes a Webauthn4j AuthenticationRequest."
   [credential-id user-handle authenticator-data client-data signature]
   (AuthenticationRequest.
-    (b64/decode-binary credential-id)
-    (b64/decode-binary user-handle)
-    (b64/decode-binary authenticator-data)
-    (b64/decode-binary client-data)
-    nil
-    (b64/decode-binary signature)))
+   (b64/decode-binary credential-id)
+   (b64/decode-binary user-handle)
+   (b64/decode-binary authenticator-data)
+   (b64/decode-binary client-data)
+   nil
+   (b64/decode-binary signature)))
 
 (defn ->auth-parameters
   "Makes a Webauthn4j AuthenticationParameters."
   [protocol host port challenge authenticator]
   (AuthenticationParameters.
-    (->server-property protocol host port challenge)
-    authenticator
-    false true []))
+   (->server-property protocol host port challenge)
+   authenticator
+   false true []))
