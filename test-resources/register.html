@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+    <title>cljwebauthn test app</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style type="text/css">
+        body {
+            margin: 20px
+        }
+    </style>
+    <script type="application/javascript">
+        $ = jQuery;
+        $(function () {
+            const publicKeyCredentialCreationOptions = (server, email) => ({
+                challenge: Uint8Array.from(
+                    server.challenge, c => c.charCodeAt(0)),
+                rp: {
+                    name: server.rp.name,
+                    id: server.rp.id,
+                },
+                user: {
+                    id: Uint8Array.from(
+                        server.user.id, c => c.charCodeAt(0)),
+                    displayName: 'Foobar',
+                    name: email,
+                },
+                pubKeyCredParams: server.cred,
+                authenticatorSelection: {
+                    authenticatorAttachment: "platform",
+                    userVerification: 'discouraged',
+                },
+                timeout: 60000,
+                attestation: "direct"
+            });
+
+            $("#register").click(function (e) {
+                const email = $("#email").val();
+                e.preventDefault();
+                $.get("/webauthn/register?email=" + email)
+                    .then(resp => $.parseJSON(resp))
+                    .then(async resp => {
+                        const pubKey = publicKeyCredentialCreationOptions(resp, email);
+                        const creds = await navigator.credentials.create({publicKey: pubKey});
+                        return {
+                            "challenge": resp.challenge, 
+                            "attestation": btoa(String.fromCharCode(...new Uint8Array(creds.response.attestationObject))),
+                            "client-data": btoa(String.fromCharCode(...new Uint8Array(creds.response.clientDataJSON))),
+                        };
+                    })
+                    .then(payload => {
+                        $.ajax({
+                            url: "/webauthn/register",
+                            type: "POST",
+                            data: JSON.stringify(payload),
+                            contentType: "application/json",
+                            success: function (resp) {
+                                alert('You are now registered.');
+                            },
+                            error: function (e) {
+                                alert('We could not register your account.');
+                            }
+                        });
+                    });
+            })
+        })
+    </script>
+</head>
+<body>
+<h1 style="color: #369"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Clojure_logo.svg/1920px-Clojure_logo.svg.png" width="50"/> Register</h1>
+<hr/>
+<ul class="nav">
+    <li class="nav-item">
+        <a class="nav-link" href="/">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/login">Login</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/admin">Protected page</a>
+    </li>
+</ul>
+<hr/>
+<form>
+    <label for="email">E-mail:</label>
+    <input type="text" id="email" name="email"/>
+
+    <button class="btn btn-primary" id="register">Register</button>
+</form>
+</body>
+</html>
+
+<!--
+<html>
+  <head><title>HULLO</title></head>
+  <body>
+    <h1>login.html</h1>
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/login/">Login</a></li>
+      <li><a href="/admin/">Admin</a></li>
+    </ul>
+    <form action="/login/" method="post">
+      <label for="username">Username:</label>
+      <input type="text" name="username"></input>
+      <label for="password">Password:</label>
+      <input type="password" name="password"></input>
+
+      <input type="submit" value="Sign In">
+    </form>
+  </body>
+</html>
+-->
+

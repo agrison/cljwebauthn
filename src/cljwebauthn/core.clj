@@ -4,7 +4,8 @@
             [cljwebauthn.interop :as interop])
   (:import (java.util UUID)
            (com.webauthn4j.data AuthenticationRequest AuthenticationParameters)
-           (com.webauthn4j WebAuthnManager)))
+           (com.webauthn4j WebAuthnManager)
+           (com.webauthn4j.authenticator Authenticator)))
 
 (def eliptic-curve -7)
 
@@ -68,13 +69,16 @@
   Returns both a challenge and the credential-id used upon registration."
   [user-id get-authenticator]
   (let [challenge (generate-challenge)]
-    (swap! *challenges* assoc-in [:login challenge] user-id)
-    {:challenge   challenge
-     :credentials [{:type "public-key",
-                    :id   (-> (get-authenticator user-id)
-                              .getAttestedCredentialData
-                              .getCredentialId
-                              b64/encode-binary)}]}))
+    (when-let [^Authenticator authenticator (get-authenticator user-id)]
+      (do
+        (swap! *challenges* assoc-in [:login challenge] user-id)
+        {:challenge   challenge
+         :credentials [{:type "public-key",
+                        :id   (-> authenticator
+                                  .getAttestedCredentialData
+                                  .getCredentialId
+                                  b64/encode-binary)}]})
+      )))
 
 (defn login-user
   "Login a user using Webauthn."

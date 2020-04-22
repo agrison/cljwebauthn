@@ -1,12 +1,21 @@
 {:paths   ["resources" "src"]
  :deps    {org.clojure/clojure            {:mvn/version "1.10.1"}
-           buddy                          {:mvn/version "2.0.0"}
+           ;buddy                          {:mvn/version "2.0.0"}
            org.clojure/data.json          {:mvn/version "1.0.0"}
            com.webauthn4j/webauthn4j-core {:mvn/version "0.11.0.RELEASE"}
            nrepl/nrepl                    {:mvn/version "0.5.3"}}
- :aliases {:test      {:extra-paths ["test"]
-                       :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0-612"}}
+ :aliases {:test      {:extra-paths ["test" "test-resources"]
+                       :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0-612"}
+                                     buddy               {:mvn/version "2.0.0"}
+                                     ring                {:mvn/version "1.8.0"}
+                                     compojure           {:mvn/version "1.6.1"}}
                        :main-opts   ["-m" "kaocha.runner"]}
+           :run-test  {:extra-paths ["test" "test-resources"]
+                       :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0-612"}
+                                     buddy               {:mvn/version "2.0.0"}
+                                     ring                {:mvn/version "1.8.0"}
+                                     compojure           {:mvn/version "1.6.1"}}
+                       :main-opts   ["-m" "cljwebauthn.sample-app-test"]}
            :kondo     {:extra-deps {clj-kondo {:mvn/version "RELEASE"}}
                        :main-opts  ["-m" "clj-kondo.main" "--lint" "src"]}
            :fmt-fix   {:extra-deps {com.jameslaverack/cljfmt-runner
