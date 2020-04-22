@@ -14,6 +14,22 @@
             margin: 20px
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/github.min.css">
+    <script>
+        function refreshHljs() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        }
+
+        function addResult(title, input, output) {
+            $("#result").append($("<p><b>" + title + "</b></p>"));
+            input && $("#result").append($("<pre><code class='json'>" + input + "</code></pre>"));
+            output && $("#result").append($("<pre><code class='json'>" + output + "</code></pre>"));
+            refreshHljs();
+        }
+    </script>
     <script type="application/javascript">
         $ = jQuery;
         $(function () {
@@ -43,7 +59,11 @@
                 const email = $("#email").val();
                 e.preventDefault();
                 $.get("/webauthn/register?email=" + email)
-                    .then(resp => $.parseJSON(resp))
+                    .then(resp => {
+                        addResult("GET /webauthn/register?email=" + email, null, 
+                                  JSON.stringify($.parseJSON(resp), null, 3));
+                        return $.parseJSON(resp);
+                    })
                     .then(async resp => {
                         const pubKey = publicKeyCredentialCreationOptions(resp, email);
                         const creds = await navigator.credentials.create({publicKey: pubKey});
@@ -60,7 +80,9 @@
                             data: JSON.stringify(payload),
                             contentType: "application/json",
                             success: function (resp) {
-                                alert('You are now registered.');
+                                addResult("POST /webauthn/login", 
+                                  JSON.stringify(payload, null, 3), null);
+                                setTimeout(() => alert('You are now registered.'), 500);
                             },
                             error: function (e) {
                                 alert('We could not register your account.');
@@ -88,32 +110,13 @@
 <hr/>
 <form>
     <label for="email">E-mail:</label>
-    <input type="text" id="email" name="email"/>
+    <input type="text" id="email" name="email" autocomplete="off" />
 
     <button class="btn btn-primary" id="register">Register</button>
 </form>
+
+<div id="result" style="margin-top: 20px">
+</div>
+
 </body>
 </html>
-
-<!--
-<html>
-  <head><title>HULLO</title></head>
-  <body>
-    <h1>login.html</h1>
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/login/">Login</a></li>
-      <li><a href="/admin/">Admin</a></li>
-    </ul>
-    <form action="/login/" method="post">
-      <label for="username">Username:</label>
-      <input type="text" name="username"></input>
-      <label for="password">Password:</label>
-      <input type="password" name="password"></input>
-
-      <input type="submit" value="Sign In">
-    </form>
-  </body>
-</html>
--->
-

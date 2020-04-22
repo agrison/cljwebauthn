@@ -14,6 +14,22 @@
             margin: 20px
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/github.min.css">
+    <script>
+        function refreshHljs() {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        }
+
+        function addResult(title, input, output) {
+            $("#result").append($("<p><b>" + title + "</b></p>"));
+            input && $("#result").append($("<pre><code class='json'>" + input + "</code></pre>"));
+            output && $("#result").append($("<pre><code class='json'>" + output + "</code></pre>"));
+            refreshHljs();
+        }
+    </script>
     <script type="application/javascript">
         $ = jQuery;
         $(function () {
@@ -31,13 +47,15 @@
             });
 
             $("#login").click(function (e) {
-              console.log('LOL');
                 const email = $("#email").val();
                 e.preventDefault();
                 $.get("/webauthn/login?email=" + email)
-                    .then(resp => $.parseJSON(resp))
+                    .then(resp => {
+                        addResult("GET /webauthn/login?email=" + email, null, 
+                                  JSON.stringify($.parseJSON(resp), null, 3));
+                        return $.parseJSON(resp);
+                    })
                     .then(async resp => {
-                      console.log(resp);
                         const pubKey = publicKeyCredentialRequestOptions(resp);
                         console.log(pubKey);
                         const assertion = await navigator.credentials.get({publicKey: pubKey});
@@ -53,19 +71,18 @@
                         };
                     })
                     .then(payload => {
-                      console.log(payload);
                         $.ajax({
                             url: "/webauthn/login",
                             type: "POST",
                             data: JSON.stringify(payload),
                             contentType: "application/json",
                             success: function (resp) {
-                              console.log(resp);
-                                alert('You are now registered.');
+                                addResult("POST /webauthn/login", 
+                                   JSON.stringify(payload, null, 3), null);
+                                setTimeout(() => alert('You are now logged-in.'), 500);
                             },
                             error: function (e) {
-                              console.log(e);
-                                alert('We could not register your account.');
+                                alert('We could not log you in.');
                             }
                         });
                     });
@@ -90,9 +107,13 @@
 <hr/>
 <form>
     <label for="email">E-mail:</label>
-    <input type="text" id="email" name="email"/>
+    <input type="text" id="email" name="email" autocomplete="off" />
 
     <button class="btn btn-primary" id="login">Login</button>
 </form>
+
+<div id="result" style="margin-top: 20px">
+</div>
+
 </body>
 </html>
