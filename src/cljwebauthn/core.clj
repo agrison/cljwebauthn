@@ -30,9 +30,11 @@
   "Prepare a user for registration by generating a challenge and
   giving the information needed by the browser to follow with the
   registration process.
+
   The `user-id` variable can be anything, it's usually an e-mail.
-  The method will call the given can-register-user function before preparing
-  for registration"
+
+  The method will call the given `can-register-user` function before preparing
+  for registration."
   ([user-id properties]
    (prepare-registration user-id (fn [_] true) properties))
   ([user-id can-register-user properties]
@@ -50,6 +52,7 @@
 
 (defn register-user
   "Register a user given its attestation, client-data and challenge.
+
   The save authenticator function takes both the user-id and the authenticator
   to be saved so that it can be retrieved during login operation."
   [{:keys [attestation client-data challenge]}
@@ -66,6 +69,7 @@
 ;;; ----- login
 (defn prepare-login
   "Prepare user login using WebAuthn.
+
   Returns both a challenge and the credential-id used upon registration."
   [user-id get-authenticator]
   (let [challenge (generate-challenge)]

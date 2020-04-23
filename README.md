@@ -1,5 +1,7 @@
 # WebAuthn for Clojure
 
+[![cljdoc badge](https://cljdoc.org/badge/me.grison/cljwebauthn)](https://cljdoc.org/d/me.grison/cljwebauthn/0.1.1)
+
 This library give you a Clojure wrapper over WebAuthn4J so that you can enable user registration and login functionality through WebAuthn in your Clojure backend / API.
 
 It contains 4 functions for:
@@ -11,6 +13,8 @@ It contains 4 functions for:
 
 [![Alt text](https://img.youtube.com/vi/Q_2O13_yST4/0.jpg)](https://www.youtube.com/watch?v=Q_2O13_yST4)
 
+Current version of cljwebauthn uses version webauthn4j-core-0.11.1.RELEASE.
+
 ## Dependency
 
 Add the following dependency:
@@ -19,13 +23,18 @@ Add the following dependency:
 <dependency>
    <groupId>me.grison</groupId>
    <artifactId>cljwebauthn</artifactId>
-   <version>0.1.0</version>
+   <version>0.1.1</version>
 </dependency>
 ```
 
 **deps.edn**
 ```clojure
-me.grison/cljwebauthn {:mvn/version "0.1.0"}
+me.grison/cljwebauthn {:mvn/version "0.1.1"}
+```
+
+**Leiningen/Boot**
+```clojure
+[me.grison/cljwebauthn "0.1.1"]
 ```
 
 ## API

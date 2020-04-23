@@ -13,7 +13,7 @@
 
 (defn encode-binary
   "Base64 encode the given byte array."
-  [to-encode]
+  [^bytes to-encode]
   (.encodeToString (Base64/getEncoder) to-encode))
 
 (defn decode-binary
