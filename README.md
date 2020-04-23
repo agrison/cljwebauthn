@@ -1,6 +1,6 @@
 # WebAuthn for Clojure
 
-[![cljdoc badge](https://cljdoc.org/badge/me.grison/cljwebauthn)](https://cljdoc.org/d/me.grison/cljwebauthn/0.1.1)
+[![cljdoc badge](https://cljdoc.org/badge/me.grison/cljwebauthn)](https://cljdoc.org/d/me.grison/cljwebauthn/CURRENT)
 
 This library give you a Clojure wrapper over WebAuthn4J so that you can enable user registration and login functionality through WebAuthn in your Clojure backend / API.
 
