@@ -34,7 +34,24 @@
   The `user-id` variable can be anything, it's usually an e-mail.
 
   The method will call the given `can-register-user` function before preparing
-  for registration."
+  for registration.
+
+  Example:
+  ```clojure
+  (prepare-registration
+    \"foo@bar.com\"
+    {:site-id   \"grison.me\",
+     :site-name \"Stuff and Thoughts about IT Stuff\",
+     :protocol  \"https\",
+     :port      443,
+     :host      \"grison.me\"})
+=> {:rp        {:id  \"grison.me\"
+                :name \"Stuff and Thoughts about IT Stuff\"}
+    :user      {:id \"Zm9vQGJhci5jb20=\"}
+    :cred      [{:type \"public-key\"
+                 :alg  -7}]
+    :challenge #uuid \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+  ```"
   ([user-id properties]
    (prepare-registration user-id (fn [_] true) properties))
   ([user-id can-register-user properties]
@@ -54,7 +71,24 @@
   "Register a user given its attestation, client-data and challenge.
 
   The save authenticator function takes both the user-id and the authenticator
-  to be saved so that it can be retrieved during login operation."
+  to be saved so that it can be retrieved during login operation.
+
+  Example:
+  ```clojure
+  (register-user
+    {:attestation \"o2NmbXRmcGFja2VkZ2F0dFN0bXSiY2FsZ...dbaqAkCY1nvQuI=\"
+     :client-data \"eyJjaGFsbGVuZ2UiOiJabTl2...ZWF0ZSJ9\"
+     :challenge   \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+    {:site-id   \"grison.me\",
+     :site-name \"Stuff and Thoughts about IT Stuff\",
+     :protocol  \"https\",
+     :port      443,
+     :host      \"grison.me\"}
+     (fn [user-id authenticator]
+       ; save the authenticator for user-id somewhere
+     ))
+=> {:user-id \"foo@bar.com\" :challenge \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+   ```"
   [{:keys [attestation client-data challenge]}
    {:keys [protocol host port]}
    save-authenticator]
@@ -70,7 +104,19 @@
 (defn prepare-login
   "Prepare user login using WebAuthn.
 
-  Returns both a challenge and the credential-id used upon registration."
+  Returns both a challenge and the credential-id used upon registration.
+
+  Example:
+  ```clojure
+  (prepare-login
+    \"foo@bar.com\"
+    (fn [user-id]
+      ; retrieve the authenticator for user-id
+    ))
+=> {:challenge   #uuid \"439cf387-25a9-40bc-a36a-bb84168e5f54\"
+    :credentials [{:type \"public-key\"
+                   :id   \"AWcH5uwgu/phBRUWh6B9A2...tg54nA==\"}]}
+  ```"
   [user-id get-authenticator]
   (let [challenge (generate-challenge)]
     (when-let [^Authenticator authenticator (get-authenticator user-id)]
@@ -85,7 +131,27 @@
       )))
 
 (defn login-user
-  "Login a user using Webauthn."
+  "Login a user using Webauthn.
+
+  Example:
+  ```clojure
+  (clogin-user
+    {:credential-id      \"ARkFqKfCJaxgXG4m53c2y3zWpxSZGriN0sH...qt57yU=\"
+     :user-handle        \"Zm9vQGJhci5jb20=\"
+     :authenticator-data \"09CVCOxdEGxTwSc5mFML...3Wl3siTnwk0FXo82Tg==\"
+     :client-data        \"eyJjaGFsbGVuZ2UiOiJabTl2WW1...G4uZ2V0In0=\"
+     :signature          \"MEUCIQCkfqWpAhi7CRO0exa2wenWgDaakqJ..gv+gI1roY=\"
+     :challenge          \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+   {:site-id   \"grison.me\",
+     :site-name \"Stuff and Thoughts about IT Stuff\",
+     :protocol  \"https\",
+     :port      443,
+     :host      \"grison.me\"}
+   (fn [user-id]
+      ; retrieve the authenticator associated with user-id
+   ))
+=> {:user-id \"foo@bar.com\" :challenge \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+  ```"
   [{:keys [credential-id user-handle authenticator-data client-data signature challenge]}
    {:keys [protocol host port]}
    get-authenticator]
