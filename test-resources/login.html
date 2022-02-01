@@ -38,11 +38,13 @@
                   server.challenge, c => c.charCodeAt(0)),
               allowCredentials: [{
                   id: Uint8Array.from(
-                    atob(server.credentials[0].id), 
+                    atob(server.credentials[0].id),
                     c => c.charCodeAt(0)),
                   type: server.credentials[0].type,
-                  transports: ['internal'],
+                  // Also allow 'usb' transport to permit USB authenticators to be used
+                  transports: ['internal', 'usb'],
               }],
+              userVerification: 'discouraged',
               timeout: 60000,
             });
 
@@ -51,7 +53,7 @@
                 e.preventDefault();
                 $.get("/webauthn/login?email=" + email)
                     .then(resp => {
-                        addResult("GET /webauthn/login?email=" + email, null, 
+                        addResult("GET /webauthn/login?email=" + email, null,
                                   JSON.stringify($.parseJSON(resp), null, 3));
                         return $.parseJSON(resp);
                     })
@@ -61,7 +63,7 @@
                         const assertion = await navigator.credentials.get({publicKey: pubKey});
                         console.log(assertion);
                         return {
-                            "challenge": resp.challenge, 
+                            "challenge": resp.challenge,
                             "credential-id": btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
                             "user-handle": btoa(email),
                             "authenticator-data": btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
@@ -77,7 +79,7 @@
                             data: JSON.stringify(payload),
                             contentType: "application/json",
                             success: function (resp) {
-                                addResult("POST /webauthn/login", 
+                                addResult("POST /webauthn/login",
                                    JSON.stringify(payload, null, 3), null);
                                 setTimeout(() => alert('You are now logged-in.'), 500);
                             },

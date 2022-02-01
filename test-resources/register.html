@@ -48,7 +48,8 @@
                 },
                 pubKeyCredParams: server.cred,
                 authenticatorSelection: {
-                    authenticatorAttachment: "platform",
+                    // Set to 'platform' if you are on platform with a platform authenticator
+                    authenticatorAttachment: 'cross-platform',
                     userVerification: 'discouraged',
                 },
                 timeout: 60000,

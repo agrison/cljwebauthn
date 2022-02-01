@@ -2,10 +2,9 @@
   (:gen-class)
   (:require [clojure.test :refer :all]
             [cljwebauthn.core :as webauthn]
-            [buddy.auth.accessrules :refer [restrict IRuleHandlerResponse]]
+            [buddy.auth.accessrules :refer [restrict]]
             [buddy.auth.backends.session :refer [session-backend]]
             [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]]
-            [buddy.hashers :as hashers]
             [clojure.java.io :as io]
             [compojure.core :refer [defroutes context GET POST]]
             [ring.adapter.jetty :refer [run-jetty]]

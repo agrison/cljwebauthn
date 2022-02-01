@@ -120,15 +120,13 @@
   [user-id get-authenticator]
   (let [challenge (generate-challenge)]
     (when-let [^Authenticator authenticator (get-authenticator user-id)]
-      (do
-        (swap! *challenges* assoc-in [:login challenge] user-id)
-        {:challenge   challenge
-         :credentials [{:type "public-key",
-                        :id   (-> authenticator
-                                  .getAttestedCredentialData
-                                  .getCredentialId
-                                  b64/encode-binary)}]})
-      )))
+      (swap! *challenges* assoc-in [:login challenge] user-id)
+      {:challenge   challenge
+       :credentials [{:type "public-key",
+                      :id   (-> authenticator
+                                .getAttestedCredentialData
+                                .getCredentialId
+                                b64/encode-binary)}]})))
 
 (defn login-user
   "Login a user using Webauthn.
