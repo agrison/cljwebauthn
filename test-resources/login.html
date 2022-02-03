@@ -1,121 +1,125 @@
 <!doctype html>
-<html>
-<head>
-    <title>cljwebauthn test app</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <style type="text/css">
-        body {
-            margin: 20px
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/github.min.css">
-    <script>
-        function refreshHljs() {
-            document.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
-        }
+<html lang="en">
+    <head>
+        <title>cljwebauthn test app</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        function addResult(title, input, output) {
-            $("#result").append($("<p><b>" + title + "</b></p>"));
-            input && $("#result").append($("<pre><code class='json'>" + input + "</code></pre>"));
-            output && $("#result").append($("<pre><code class='json'>" + output + "</code></pre>"));
-            refreshHljs();
-        }
-    </script>
-    <script type="application/javascript">
-        $ = jQuery;
-        $(function () {
-            const publicKeyCredentialRequestOptions = (server) => ({
-              challenge: Uint8Array.from(
-                  server.challenge, c => c.charCodeAt(0)),
-              allowCredentials: [{
-                  id: Uint8Array.from(
-                    atob(server.credentials[0].id),
-                    c => c.charCodeAt(0)),
-                  type: server.credentials[0].type,
-                  // Also allow 'usb' transport to permit USB authenticators to be used
-                  transports: ['internal', 'usb'],
-              }],
-              userVerification: 'discouraged',
-              timeout: 60000,
-            });
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <style type="text/css">
+            body {
+                margin: 20px
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"
+                integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+                crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/styles/default.min.css">
+        <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.4.0/build/highlight.min.js"></script>
+        <script>
+            function refreshHljs() {
+                document.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
 
-            $("#login").click(function (e) {
-                const email = $("#email").val();
-                e.preventDefault();
-                $.get("/webauthn/login?email=" + email)
-                    .then(resp => {
-                        addResult("GET /webauthn/login?email=" + email, null,
-                                  JSON.stringify($.parseJSON(resp), null, 3));
-                        return $.parseJSON(resp);
-                    })
-                    .then(async resp => {
-                        const pubKey = publicKeyCredentialRequestOptions(resp);
-                        console.log(pubKey);
-                        const assertion = await navigator.credentials.get({publicKey: pubKey});
-                        console.log(assertion);
-                        return {
-                            "challenge": resp.challenge,
-                            "credential-id": btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
-                            "user-handle": btoa(email),
-                            "authenticator-data": btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
-                            "signature": btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
-                            "attestation": btoa(String.fromCharCode(...new Uint8Array(assertion.response.attestationObject))),
-                            "client-data": btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))),
-                        };
-                    })
-                    .then(payload => {
-                        $.ajax({
-                            url: "/webauthn/login",
-                            type: "POST",
-                            data: JSON.stringify(payload),
-                            contentType: "application/json",
-                            success: function (resp) {
-                                addResult("POST /webauthn/login",
-                                   JSON.stringify(payload, null, 3), null);
-                                setTimeout(() => alert('You are now logged-in.'), 500);
-                            },
-                            error: function (e) {
-                                alert('We could not log you in.');
-                            }
-                        });
-                    });
+            function addResult(title, input, output) {
+                $("#result").append($("<p><b>" + title + "</b></p>"));
+                input && $("#result").append($("<pre><code class='json'>" + input + "</code></pre>"));
+                output && $("#result").append($("<pre><code class='json'>" + output + "</code></pre>"));
+                refreshHljs();
+            }
+
+            $ = jQuery;
+            $(function () {
+                const publicKeyCredentialRequestOptions = (server) => ({
+                    challenge: Uint8Array.from(
+                        server.challenge, c => c.charCodeAt(0)),
+                    allowCredentials: [{
+                        id: Uint8Array.from(
+                            atob(server.credentials[0].id),
+                            c => c.charCodeAt(0)),
+                        type: server.credentials[0].type,
+                        // Change to 'usb' or some other type if no client-device specific
+                        // transport is available
+                        transports: ['internal'],
+                    }],
+                    userVerification: 'discouraged',
+                    timeout: 60000,
+                });
+
+                $("#login").click(function (e) {
+                    const email = $("#email").val();
+                    e.preventDefault();
+                    $.get("/webauthn/login?email=" + email)
+                     .then(resp => {
+                         addResult("GET /webauthn/login?email=" + email, null,
+                                   JSON.stringify(JSON.parse(resp), null, 3));
+                         return JSON.parse(resp);
+                     })
+                     .then(async resp => {
+                         const pubKey = publicKeyCredentialRequestOptions(resp);
+                         console.log(pubKey);
+                         const assertion = await navigator.credentials.get({publicKey: pubKey});
+                         console.log(assertion);
+                         return {
+                             "challenge": resp.challenge,
+                             "credential-id": btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))),
+                             "user-handle": btoa(email),
+                             "authenticator-data": btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))),
+                             "signature": btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))),
+                             "attestation": btoa(String.fromCharCode(...new Uint8Array(assertion.response.attestationObject))),
+                             "client-data": btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))),
+                         };
+                     })
+                     .then(payload => {
+                         $.ajax({
+                             url: "/webauthn/login",
+                             type: "POST",
+                             data: JSON.stringify(payload),
+                             contentType: "application/json",
+                             success: function (resp) {
+                                 addResult("POST /webauthn/login",
+                                           JSON.stringify(payload, null, 3), null);
+                                 setTimeout(() => alert('You are now logged-in.'), 500);
+                             },
+                             error: function (e) {
+                                 alert('We could not log you in.');
+                             }
+                         });
+                     });
+                })
             })
-        })
-    </script>
-</head>
-<body>
-<h1 style="color: #369"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Clojure_logo.svg/1920px-Clojure_logo.svg.png" width="50"/> Login</h1>
-<hr/>
-<ul class="nav">
-    <li class="nav-item">
-        <a class="nav-link" href="/">Home</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" href="/admin">Protected page</a>
-    </li>
-</ul>
-<hr/>
-<form>
-    <label for="email">E-mail:</label>
-    <input type="text" id="email" name="email" autocomplete="off" />
+        </script>
+    </head>
+    <body>
+        <h1 style="color: #369">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Clojure_logo.svg/1920px-Clojure_logo.svg.png" width="50">
+            Login
+        </h1>
+        <hr/>
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/register">Register</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin">Protected page</a>
+            </li>
+        </ul>
+        <hr/>
+        <form>
+            <label for="email">E-mail:</label>
+            <input type="text" id="email" name="email" autocomplete="off" />
 
-    <button class="btn btn-primary" id="login">Login</button>
-</form>
+            <button class="btn btn-primary" id="login">Login</button>
+        </form>
 
-<div id="result" style="margin-top: 20px">
-</div>
+        <div id="result" style="margin-top: 20px"></div>
 
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    </body>
 </html>
