@@ -23,7 +23,7 @@
 
   `protocol` is either `http` or `https`."
   [^String protocol ^String host ^Integer port ^String challenge]
-  (ServerProperty. (Origin. protocol host port)
+  (ServerProperty. (Origin. (str protocol "://" host ":" port))
                    host
                    (DefaultChallenge. (b64/encode challenge))
                    (byte-array 0)))
@@ -35,7 +35,7 @@
   [^String protocol ^String host ^Integer port ^String challenge]
   (RegistrationParameters.
    (->server-property protocol host port challenge)
-   false true []))
+   nil false true))
 
 (defn ->registration-data
   "Makes a Webauthn4J **WebAuthnManager**."
@@ -58,9 +58,7 @@
 (defn ->authenticator
   "Makes a Webauthn4J **AuthenticatorImpl**."
   [^RegistrationData data]
-  (AuthenticatorImpl. (-> data .getAttestationObject .getAuthenticatorData .getAttestedCredentialData)
-                      (-> data .getAttestationObject .getAttestationStatement)
-                      (-> data .getAttestationObject .getAuthenticatorData .getSignCount)))
+  (AuthenticatorImpl/createFromRegistrationData data))
 
 (defn ->auth-request
   "Makes a Webauthn4j **AuthenticationRequest**.
@@ -81,4 +79,4 @@
   (AuthenticationParameters.
    (->server-property protocol host port challenge)
    authenticator
-   false true []))
+   nil false true))
