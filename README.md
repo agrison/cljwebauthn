@@ -23,13 +23,13 @@ Add the following dependency:
 <dependency>
    <groupId>me.grison</groupId>
    <artifactId>cljwebauthn</artifactId>
-   <version>0.1.2</version>
+   <version>0.1.3</version>
 </dependency>
 ```
 
 **deps.edn**
 ```clojure
-me.grison/cljwebauthn {:mvn/version "0.1.2"}
+me.grison/cljwebauthn {:mvn/version "0.1.3"}
 ```
 
 **Leiningen/Boot**
