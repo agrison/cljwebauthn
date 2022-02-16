@@ -53,7 +53,7 @@
                                (println "Registering user" user-id)
                                (reset! auth authenticator)))]
         (with-redefs [generate-challenge (fn [] LOGIN-CHALLENGE)]
-          (let [prep (prepare-login EMAIL (fn [user-id] @auth))]
+          (let [prep (prepare-login EMAIL (fn [user-id] [@auth]))]
             (is (contains? (:login @*challenges*) LOGIN-CHALLENGE))
             (is (every? prep [:challenge :credentials]))
             (is (= LOGIN-CHALLENGE (:challenge prep)))
@@ -76,7 +76,7 @@
                                (println "Registering user" user-id)
                                (reset! auth authenticator)))
             user (login-user login-payload site-properties
-                             (fn [user-id] @auth))]
+                             (fn [user-id] [@auth]))]
         (is (every? user [:user-id :challenge]))
         (is (= LOGIN-CHALLENGE (:challenge user)))
         (is (= EMAIL (b64/decode (b64/decode (:user-id user)))))))))

@@ -5,7 +5,8 @@
   (:import (java.util UUID)
            (com.webauthn4j.data AuthenticationRequest AuthenticationParameters)
            (com.webauthn4j WebAuthnManager)
-           (com.webauthn4j.authenticator Authenticator)))
+           (com.webauthn4j.authenticator Authenticator)
+           (com.webauthn4j.validator.exception BadSignatureException)))
 
 (def eliptic-curve -7)
 
@@ -111,22 +112,23 @@
   (prepare-login
     \"foo@bar.com\"
     (fn [user-id]
-      ; retrieve the authenticator for user-id
+      ; retrieve the authenticator(s) (one or more in a seq) for user-id
     ))
-=> {:challenge   #uuid \"439cf387-25a9-40bc-a36a-bb84168e5f54\"
+  => {:challenge   #uuid \"439cf387-25a9-40bc-a36a-bb84168e5f54\"
     :credentials [{:type \"public-key\"
                    :id   \"AWcH5uwgu/phBRUWh6B9A2...tg54nA==\"}]}
   ```"
   [user-id get-authenticator]
   (let [challenge (generate-challenge)]
-    (when-let [^Authenticator authenticator (get-authenticator user-id)]
+    (when-let [authenticators (seq (get-authenticator user-id))]
       (swap! *challenges* assoc-in [:login challenge] user-id)
       {:challenge   challenge
-       :credentials [{:type "public-key",
-                      :id   (-> authenticator
-                                .getAttestedCredentialData
-                                .getCredentialId
-                                b64/encode-binary)}]})))
+       :credentials (for [^Authenticator authenticator authenticators]
+                      {:type "public-key",
+                       :id   (-> authenticator
+                                 .getAttestedCredentialData
+                                 .getCredentialId
+                                 b64/encode-binary)})})))
 
 (defn login-user
   "Login a user using Webauthn.
@@ -146,18 +148,28 @@
      :port      443,
      :host      \"grison.me\"}
    (fn [user-id]
-      ; retrieve the authenticator associated with user-id
+      ; retrieve the authenticator(s) (one or more in a seq) associated with user-id
    ))
-=> {:user-id \"foo@bar.com\" :challenge \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
+  => {:user-id \"foo@bar.com\" :challenge \"439cf387-25a9-40bc-a36a-bb84168e5f54\"}
   ```"
   [{:keys [credential-id user-handle authenticator-data client-data signature challenge]}
    {:keys [protocol host port]}
    get-authenticator]
-  (let [authenticator (get-authenticator user-handle)
-        ^AuthenticationRequest request (interop/->auth-request credential-id user-handle authenticator-data
-                                                               client-data signature)
-        ^AuthenticationParameters parameters (interop/->auth-parameters protocol host port challenge authenticator)
-        ^WebAuthnManager manager (interop/default-manager)
-        data (.parse manager request)]
-    (when (.validate manager data parameters)
-      {:user-id user-handle :challenge challenge})))
+  (let [^AuthenticationRequest request (interop/->auth-request credential-id user-handle authenticator-data
+                                                               client-data signature)]
+    (first (filter map?
+                   (for [authenticator (get-authenticator user-handle)]
+                     (let [^AuthenticationParameters parameters (interop/->auth-parameters
+                                                                 protocol
+                                                                 host
+                                                                 port
+                                                                 challenge
+                                                                 authenticator)
+                           ^WebAuthnManager manager (interop/default-manager)
+                           data (.parse manager request)]
+                       (try
+                         (when (.validate manager data parameters)
+                           {:user-id user-handle :challenge challenge})
+                         (catch BadSignatureException _
+                           ;; invalid assertion signature
+                           nil))))))))

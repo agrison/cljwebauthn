@@ -40,7 +40,7 @@
 
 (defn do-logout [{session :session}]
   (assoc (redirect "/login")
-    :session (dissoc session :identity)))
+         :session (dissoc session :identity)))
 
 ;; data sample
 (def site-properties
@@ -75,8 +75,8 @@
 
 (defn input [body]
   (if (instance? String body)
-     body
-     (slurp body)))
+    body
+    (slurp body)))
 
 (defn do-register [req]
   (let [payload (-> req :body input (json/read-str :key-fn keyword))]
@@ -86,17 +86,17 @@
 
 (defn do-prepare-login [req]
   (let [email (get-in req [:params "email"])]
-    (if-let [resp (webauthn/prepare-login email (fn [email] (:authenticator (get-user email))))]
+    (if-let [resp (webauthn/prepare-login email (fn [email] [(:authenticator (get-user email))]))]
       (response (json/write-str resp))
       (ring.util.response/status
-        (json/write-str {:message (str "Cannot prepare login for user: " email)}) 500))))
+       (json/write-str {:message (str "Cannot prepare login for user: " email)}) 500))))
 
 (defn do-login [{session :session :as req}]
   (let [payload (-> req :body input (json/read-str :key-fn keyword))]
     (let [email (cljwebauthn.b64/decode (:user-handle payload))
           user (get-user email)
           auth (:authenticator user)]
-      (if-let [log (webauthn/login-user payload site-properties (fn [email] auth))]
+      (if-let [log (webauthn/login-user payload site-properties (fn [email] [auth]))]
         (assoc (redirect "/") :session (assoc session :identity (select-keys user [:id :email])))
         (redirect "/login")))))
 
@@ -110,21 +110,23 @@
 
 
 ;; Routes
+
+
 (defroutes admin-routes
-           (GET "/" [] admin-page))
+  (GET "/" [] admin-page))
 
 (defroutes all-routes
-           (context "/admin" []
-             (restrict admin-routes {:handler is-authenticated}))
-           (GET "/" [] home-page)
-           (GET "/register" [] register-page)
-           (GET "/login" [] login-page)
-           (GET "/logout" [] do-logout)
-           (context "/webauthn" []
-             (GET "/register" [] do-prepare-register)
-             (POST "/register" [] do-register)
-             (GET "/login" [] do-prepare-login)
-             (POST "/login" [] do-login)))
+  (context "/admin" []
+    (restrict admin-routes {:handler is-authenticated}))
+  (GET "/" [] home-page)
+  (GET "/register" [] register-page)
+  (GET "/login" [] login-page)
+  (GET "/logout" [] do-logout)
+  (context "/webauthn" []
+    (GET "/register" [] do-prepare-register)
+    (POST "/register" [] do-register)
+    (GET "/login" [] do-prepare-login)
+    (POST "/login" [] do-login)))
 
 (def my-app
   (let [backend (session-backend)]
