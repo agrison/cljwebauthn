@@ -34,7 +34,7 @@ me.grison/cljwebauthn {:mvn/version "0.1.3"}
 
 **Leiningen/Boot**
 ```clojure
-[me.grison/cljwebauthn "0.1.2"]
+[me.grison/cljwebauthn "0.1.3"]
 ```
 
 ## API
@@ -119,7 +119,7 @@ This function will prepare a login challenge for the client.
 
 - **input** 
   - **user-identifier**: can be anything that can identify a user, like an email or a nickname.
-  - **get-authenticator**: a function whose job is to retrieve the authenticator previously saved WebAuthn4J authenticator object.
+  - **get-authenticator**: a function whose job is to retrieve the authenticator(s) previously saved WebAuthn4J authenticator object. Must return a seq of one or more authenticators.
 - **output**
     - the necessary information needed on client side to bootstrap the navigator credentials
 
@@ -128,7 +128,7 @@ Example:
 (cljwebauthn.core/prepare-login 
     "foo@bar.com" 
     (fn [user-id]
-      ; retrieve the authenticator for user-id
+      ; retrieve the authenticator(s) (one or more in a seq) associated with user-id
     ))
 => {:challenge   "foobar"
     :credentials [{:type "public-key"
@@ -155,7 +155,7 @@ This function will prepare a login challenge for the client.
     - **:protocol**: either `http` or `https`
     - **:port**: the port your site is running on (`80`, `443`, ...)
     - **:host**: your website hostname (`grison.me`)
-  - **get-authenticator**: a function whose job is to retrieve the authenticator previously saved WebAuthn4J authenticator object.
+  - **get-authenticator**: a function whose job is to retrieve the authenticator(s) previously saved WebAuthn4J authenticator object. Must return a seq of one or more authenticators.
 - **output**
     - a map containing the user-identifier and the challenge in case of success
     - `nil` in case the registration wasn't successful
@@ -174,7 +174,7 @@ This function will prepare a login challenge for the client.
      :port      443,
      :host      "grison.me"}  
    (fn [user-id] 
-      ; retrieve the authenticator associated with user-id
+      ; retrieve the authenticator(s) (one or more in a seq) associated with user-id
    ))
 => {:user-id "foo@bar.com" :challenge "foobar"} 
 ```

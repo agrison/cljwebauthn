@@ -25,7 +25,7 @@
   [^String protocol ^String host ^Integer port ^String challenge]
   (ServerProperty. (Origin. (str protocol "://" host ":" port))
                    host
-                   (DefaultChallenge. (b64/encode challenge))
+                   (DefaultChallenge. ^String (b64/encode challenge))
                    (byte-array 0)))
 
 (defn ->registration-param
@@ -51,7 +51,7 @@
   "Returns whether the given registration date is valid."
   [^RegistrationData data ^RegistrationParameters parameters]
   (try
-    (.validate (default-manager) data parameters)
+    (.validate ^WebAuthnManager (default-manager) data parameters)
     true
     (catch Exception _ false)))
 
